@@ -1,14 +1,20 @@
+import json
 import os
 import pymysql
-from urllib.request import urlopen
+import requests
 
 # hardcoded credentials stored in plaintext can leaked information.
 # if the heckares gets the credentials they will be able get access in the detabase.
 # in the OWASP top ten categories this will fall into (A02:2021 – Cryptographic Failures)
+# Outbound communication to an external component
+
+with open("config.json") as config_file:
+    config = json.load(config_file)
+# seperating credetials in a different file for better security management
 db_config = {
-    'host': 'mydatabase.com',
-    'user': 'admin',
-    'password': 'secret123'
+    'host': config["DB_HOST"],
+    'user': config["DB_USER"],
+    'password': config["DB_PASSWORD"],
 }
 # Attackers can exploit this vulnerability to gain unauthorized access to sensitive information, user accounts, or administrative functionalities.
 #  Attackers can overwhelm the application by sending unexpected input, causing it to crash or become unresponsive, leading to service disruption for legitimate users.
@@ -18,6 +24,8 @@ db_config = {
 # source - https://hackerwhite.com/vulnerability101/desktop-application/inadequate-input-validation-vulnerability
 def get_user_input():
     user_input = input('Enter your name: ')
+    if not user_input.isalpha():
+        raise ValueError("Invalid input: Only letters are allowed.")
     return user_input
 
 def send_email(to, subject, body):
@@ -31,8 +39,10 @@ def send_email(to, subject, body):
 # source- https://cheatsheetseries.owasp.org/IndexTopTen.html
 
 def get_data():
-    url = 'http://insecure-api.com/get-data'
-    data = urlopen(url).read().decode()
+    url = 'https://insecure-api.com/get-data'
+    # If server does not respond within 5 seconds, it will raise a requests.Timeout error
+    response = requests.get(url, timeout=5)
+    data = response.text
     return data
 
 def save_to_db(data):
