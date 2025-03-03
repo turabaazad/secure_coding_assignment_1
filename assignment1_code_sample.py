@@ -59,11 +59,33 @@ def get_data():
     logging.info(f"Data retrieved from {url}: {data}")  # Log the retrieved data for monitoring
     return data
 
+# Vulnerability 2: SQL Injection Fix (A03:2021 – Injection) 
+
+# Vulnerability Description:
+# The original save_to_db function directly inserts user-provided data into an SQL query string. 
+# This is vulnerable to SQL Injection, where an attacker can manipulate the query by injecting malicious SQL code,
+# potentially deleting or modifying database records, or even gaining unauthorized access to the database.
+
+# Vulnerable Code Example:
+# query = f"INSERT INTO mytable (column1, column2) VALUES ('{data}', 'Another Value')"
+# If an attacker provides input like: 'test'); DROP TABLE mytable; --', the query becomes:
+# INSERT INTO mytable (column1, column2) VALUES ('test'); DROP TABLE mytable; --', 'Another Value')
+# This would lead to the deletion of the entire table, which is a major security risk.
+
+# Fix:
+# Use parameterized queries or prepared statements to ensure that user input is treated as data, not as part of the SQL command.
+# This approach prevents malicious input from being executed as SQL code, ensuring that the database query is safe from injection attacks.
+
 def save_to_db(data):
-    query = f"INSERT INTO mytable (column1, column2) VALUES ('{data}', 'Another Value')"
+    """
+    Secure function to save data to the database using parameterized queries to prevent SQL Injection.
+    """
+    query = "INSERT INTO mytable (column1, column2) VALUES (%s, %s)"
+    logging.info(f"Executing secure query: {query} with data: {data}")  # Log the query with secure parameters
+    
     connection = pymysql.connect(**db_config)
     cursor = connection.cursor()
-    cursor.execute(query)
+    cursor.execute(query, (data, 'Another Value'))  # Safely insert the data into the database using parameters
     connection.commit()
     cursor.close()
     connection.close()
