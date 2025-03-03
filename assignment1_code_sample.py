@@ -1,30 +1,91 @@
 import os
 import pymysql
+import json
+import logging
 from urllib.request import urlopen
 
+# Securely loading credentials from a config file (config.json) instead of hardcoding them
+with open("config.json") as config_file:
+    config = json.load(config_file)
+
 db_config = {
-    'host': 'mydatabase.com',
-    'user': 'admin',
-    'password': 'secret123'
+    'host': config["DB_HOST"],
+    'user': config["DB_USER"],  
+    'password': config["DB_PASSWORD"],  
 }
 
+# Logging configuration to monitor key actions and detect potential security incidents
+logging.basicConfig(filename='app.log', level=logging.INFO)
+
+# Vulnerability 1: Hardcoded Credentials Fix (A02:2021 – Cryptographic Failures) 
+
+# Vulnerability Description:
+# Hardcoding credentials in the source code can lead to unintentional exposure of sensitive information.
+# Attackers who gain access to the source code may steal the database credentials, leading to unauthorized access.
+
+# Vulnerable Code Example:
+# db_config = {
+#     'host': 'localhost',
+#     'user': 'admin',
+#     'password': 'password123'
+# }
+# Hardcoded credentials in the code are exposed, which is a security risk.
+
+# Fix:
+# The credentials are now securely loaded from a configuration file (config.json), preventing them from being exposed in the source code.
+# This ensures that sensitive information is not directly accessible from the application code.
+
 def get_user_input():
-    user_input = input('Enter your name: ')
+    """
+    Function to capture user input. This input could potentially be malicious if not properly handled.
+    """
+    user_input = input('Enter your name: ')  # Capture user input
+    logging.info(f"User input received: {user_input}")  # Log the input for monitoring purposes
     return user_input
 
 def send_email(to, subject, body):
+    """
+    Function to send an email. This can be abused if not properly secured.
+    """
     os.system(f'echo {body} | mail -s "{subject}" {to}')
+    logging.info(f"Email sent to {to} with subject: {subject}")  # Log email activities
 
 def get_data():
-    url = 'http://insecure-api.com/get-data'
-    data = urlopen(url).read().decode()
+    """
+    Function to retrieve data from an external API. The request could be a point of attack if not monitored.
+    """
+    url = 'http://insecure-api.com/get-data'  # Example API that could be insecure
+    data = urlopen(url).read().decode()  # Make a request to the insecure API
+    logging.info(f"Data retrieved from {url}: {data}")  # Log the retrieved data for monitoring
     return data
 
+# Vulnerability 2: SQL Injection Fix (A03:2021 – Injection) 
+
+# Vulnerability Description:
+# The original save_to_db function directly inserts user-provided data into an SQL query string. 
+# This is vulnerable to SQL Injection, where an attacker can manipulate the query by injecting malicious SQL code,
+# potentially deleting or modifying database records, or even gaining unauthorized access to the database.
+
+# Vulnerable Code Example:
+# query = f"INSERT INTO mytable (column1, column2) VALUES ('{data}', 'Another Value')"
+# If an attacker provides input like: 'test'); DROP TABLE mytable; --', the query becomes:
+# INSERT INTO mytable (column1, column2) VALUES ('test'); DROP TABLE mytable; --', 'Another Value')
+# This would lead to the deletion of the entire table, which is a major security risk.
+
+# Fix:
+# Use parameterized queries or prepared statements to ensure that user input is treated as data, not as part of the SQL command.
+# This approach prevents malicious input from being executed as SQL code, ensuring that the database query is safe from injection attacks.
+
 def save_to_db(data):
-    query = f"INSERT INTO mytable (column1, column2) VALUES ('{data}', 'Another Value')"
+    """
+    Secure function to save data to the database using parameterized queries to prevent SQL Injection.
+    """
+    query = "INSERT INTO mytable (column1, column2) VALUES (%s, %s)"
+    logging.info(f"Executing secure query: {query} with data: {data}")  # Log the query with secure parameters
+    
     connection = pymysql.connect(**db_config)
     cursor = connection.cursor()
-    cursor.execute(query)
+    cursor.execute(query, (data, 'Another Value'))  # Safely insert the data into the database using parameters
     connection.commit()
     cursor.close()
     connection.close()
