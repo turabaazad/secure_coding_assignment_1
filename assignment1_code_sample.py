@@ -6,6 +6,9 @@ import requests
 import smtplib
 from email.mime.text import MIMEText
 
+# ############################ #
+#     Finding From Turaba      #
+# ############################ #
 # hardcoded credentials stored in plaintext can leaked information.
 # if the heckares gets the credentials they will be able get access in the detabase.
 # in the OWASP top ten categories this will fall into (A02:2021 – Cryptographic Failures)
@@ -19,7 +22,9 @@ db_config = {
     'password': config["DB_PASSWORD"],
 }
 
-
+# ############################ #
+#     Finding From Turaba      #
+# ############################ #
 # Attackers can exploit this vulnerability to gain unauthorized access to sensitive information, user accounts, or administrative functionalities.
 # Attackers can overwhelm the application by sending unexpected input, causing it to crash or become unresponsive, leading to service disruption for legitimate users.
 # In the OWASP top ten categories this will fall into (A03:2021 – Injection)
@@ -32,7 +37,9 @@ def get_user_input():
         raise ValueError("Invalid input: Only letters are allowed.")
     return user_input
 
-
+# ############################ #
+#     Finding From Pinyi       #
+# ############################ #
 # It's a bad way to execute the os.system directly using the parameters getting from the users
 # Hackers can execute unintended dangerous commands by injecting malicious input, creating security vulnerabilities.
 # In the OWASP top ten categories this will fall into (A03:2021 – Injection)
@@ -51,6 +58,9 @@ def send_email(to, subject, body):
         server.sendmail("system@example.com", [to], msg.as_string())
 
 
+# ############################ #
+#     Finding From Turaba      #
+# ############################ #
 # insecure data transmission or insecure http protocol.
 # HTTP protocol transmits unencrypted data which makes it insecure and creates data vulnurebality.
 # using uncrypted http protocol might expose sensetive data/ data leckage.
@@ -58,6 +68,9 @@ def send_email(to, subject, body):
 # in the OWASP top ten categories this will fall into (A02:2021 – Cryptographic Failures) (A04:2021 – Insecure Design)
 # source- https://cheatsheetseries.owasp.org/IndexTopTen.html
 
+# ############################ #
+#     Finding From Pinyi       #
+# ############################ #
 # when we try to get the data from the third-party api, we need to monitor the failures to ensure 
 # eveything goes well. If error happens, we could have enough information to debug.
 # in the OWASP top ten categories this will fall into (A09:2021 – Security Logging and Monitoring Failures) 
@@ -76,7 +89,9 @@ def get_data():
         logging.error(f'Error occurred while fetching data from API: {e}')
         return None
 
-
+# ############################ #
+#     Finding From Pinyi       #
+# ############################ #
 # The data is got from the above api, and it's a string. If use directly in qurey, we 
 # will be at risk of SQL injection
 # In the OWASP top ten categories this will fall into (A03:2021 – Injection)
