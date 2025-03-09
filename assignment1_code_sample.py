@@ -89,17 +89,9 @@ def get_data():
         logging.error(f'Error occurred while fetching data from API: {e}')
         return None
 
-# ############################ #
-#     Finding From Pinyi       #
-# ############################ #
-# The data is got from the above api, and it's a string. If use directly in qurey, we 
-# will be at risk of SQL injection
-# In the OWASP top ten categories this will fall into (A03:2021 – Injection)
-# We could use parameterized queries to mitigate it.
-
-# ############################ #
-#     Finding From Yasmin      #
-# ############################ #
+# ############################### #
+# Finding From Yasmin and Pinyi   #
+# ############################### #
 # SQL Injection Fix (A03:2021 – Injection) 
 # Vulnerability Description:
 # The original save_to_db function directly inserts user-provided data into an SQL query string. 
