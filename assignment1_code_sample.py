@@ -7,7 +7,7 @@ import smtplib
 from email.mime.text import MIMEText
 
 # ############################ #
-#     Finding From Turaba      #
+#     Finding From Turaba and Yasmin     #
 # ############################ #
 # hardcoded credentials stored in plaintext can leaked information.
 # if the heckares gets the credentials they will be able get access in the detabase.
@@ -96,6 +96,26 @@ def get_data():
 # will be at risk of SQL injection
 # In the OWASP top ten categories this will fall into (A03:2021 – Injection)
 # We could use parameterized queries to mitigate it.
+
+# ############################ #
+#     Finding From Yasmin      #
+# ############################ #
+# SQL Injection Fix (A03:2021 – Injection) 
+# Vulnerability Description:
+# The original save_to_db function directly inserts user-provided data into an SQL query string. 
+# This is vulnerable to SQL Injection, where an attacker can manipulate the query by injecting malicious SQL code,
+# potentially deleting or modifying database records, or even gaining unauthorized access to the database.
+
+# Vulnerable Code Example:
+# query = f"INSERT INTO mytable (column1, column2) VALUES ('{data}', 'Another Value')"
+# If an attacker provides input like: 'test'); DROP TABLE mytable; --', the query becomes:
+# INSERT INTO mytable (column1, column2) VALUES ('test'); DROP TABLE mytable; --', 'Another Value')
+# This would lead to the deletion of the entire table, which is a major security risk.
+
+# Fix:
+# Use parameterized queries or prepared statements to ensure that user input is treated as data, not as part of the SQL command.
+# This approach prevents malicious input from being executed as SQL code, ensuring that the database query is safe from injection attacks.
+
 def save_to_db(data):
     # query = f"INSERT INTO mytable (column1, column2) VALUES ('{data}', 'Another Value')"
     query = f"INSERT INTO mytable (column1, column2) VALUES (%s, 'Another Value')"
