@@ -5,6 +5,7 @@ import logging
 import requests
 import smtplib
 from email.mime.text import MIMEText
+from urllib.request import urlopen
 
 # ############################ #
 #     Finding From Turaba and Yasmin     #
@@ -17,8 +18,11 @@ with open("config.json") as config_file:
     config = json.load(config_file)
 # seperating credetials in a different file for better security management
 db_config = {
+    # 'host': 'mydatabase.com',
     'host': config["DB_HOST"],
+    # 'user': 'admin',
     'user': config["DB_USER"],
+    #'password': 'secret123'
     'password': config["DB_PASSWORD"],
 }
 
@@ -33,8 +37,8 @@ db_config = {
 # source - https://hackerwhite.com/vulnerability101/desktop-application/inadequate-input-validation-vulnerability
 def get_user_input():
     user_input = input('Enter your name: ')
-    if not user_input.isalpha():
-        raise ValueError("Invalid input: Only letters are allowed.")
+    # if not user_input.isalpha():
+    #     raise ValueError("Invalid input: Only letters are allowed.")
     return user_input
 
 # ############################ #
@@ -81,13 +85,15 @@ def get_data():
     # response = requests.get(url, timeout=5)
     # data = response.text
     # return data
-    try:
-        response = requests.get(url, timeout=5)
-        data = response.text
-        return data
-    except Exception as e:
-        logging.error(f'Error occurred while fetching data from API: {e}')
-        return None
+    # try:
+    #     response = requests.get(url, timeout=5)
+    # data = response.text
+    data = urlopen(url).read().decode()
+   
+    return data
+    # except Exception as e:
+    #     logging.error(f'Error occurred while fetching data from API: {e}')
+    #     return None
 
 # ############################### #
 # Finding From Yasmin and Pinyi   #
